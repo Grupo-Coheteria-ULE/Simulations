@@ -1,6 +1,6 @@
 **era5_teleno_julio_2425**
 
-Hemos recopilado datos meteorológicos de ERA5 para el área del Teleno en julio 2024-2025, enfocados en niveles de presión para el vuelo del cohete.
+ Hemos recopilado datos meteorológicos de ERA5 para el área del Teleno en julio 2024-2025, enfocados en niveles de presión para el vuelo del cohete.
 Estos datos permiten modelar vientos y estabilidad útiles para el análisis de misión y zona de caida del cohete en simulaciones con rocketpy.
 
     Las variables incluidas son las siguientes:
