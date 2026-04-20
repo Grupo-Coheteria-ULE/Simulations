@@ -1,0 +1,97 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Feb 20 15:19:12 2026
+
+@author: julfe
+"""
+
+# CODIGO PARA SIMULACIONES NOMINALES (vuelo vertical sin viento a nivel del mar, para calcular esfuerzos maximos)
+
+from rocketpy import Rocket, Environment, SolidMotor, GenericMotor, Flight
+
+
+latitud_alcolea = 41.729873
+
+longitud_alcolea = 0.104249
+
+env = Environment(latitude=latitud_alcolea, longitude=longitud_alcolea, elevation = 0)  # elevación cero porque es a nivel del mar, es en el teleno por que si
+
+env.set_atmospheric_model(type="standard_atmosphere")
+
+# =============================================================================
+# Cesaroni_614I100-17A
+# =============================================================================
+Motor = GenericMotor(
+    thrust_source=r"C:\Users\julfe\Documents\GCULE\Simulacion\Simulaciones_nominales_L1_2_45recto\Cesaroni_614I100-17A.csv", 
+    burn_time=6.2, # segundos, introducir el rango de tiempo de combustión sgún aparece en la primera columna del archivo csv
+    chamber_radius= 0.027, # radio del motor
+    chamber_height= 0.236, # longitud del motor sin contar tobera
+    chamber_position= 0, # longitud hasta el culo del motor (desde el culo del cohete, que suele ser la tobera)
+    propellant_initial_mass = 0.350, # Kg
+    nozzle_radius= 0, 
+    dry_mass= 0.457, # kg, masa del motor despues del burn out (sin combustible)
+    center_of_dry_mass_position= 0.236/2, # posición de la mitad del motor aprox desde la salida de la tobera
+    dry_inertia=(0.00389,0.00389,0.000294152), # KG.M2 con peso en seco, calcular momento de inercia de un cilindro de estas dimensiones y misma masa en seco, se hace en esta pagina web https://www.calcuvio.com/momento-inercia-cilindro
+    nozzle_position=0,# 0 si no hay tobera
+    coordinate_system_orientation="nozzle_to_combustion_chamber" 
+)
+
+Leon_1_2 = Rocket(
+    radius = 0.04, # m, radio exterior
+    mass = 2.84, # kg, sin motor
+    inertia = (0.403, 0.403, 0.003), # kg*m2, misma asunción que para el motor
+    power_off_drag = r"C:\Users\julfe\Documents\GCULE\Simulacion\Simulaciones_nominales_L1_2_45recto\curva_drag_L1_2_45_recto.csv", # ruta de .csv drag RASAERO, pasar a comas
+    power_on_drag = r"C:\Users\julfe\Documents\GCULE\Simulacion\Simulaciones_nominales_L1_2_45recto\curva_drag_L1_2_45_recto.csv", # misma ruta que arriba
+    center_of_mass_without_motor = 0.548, # posición del cg en m desde la cola
+    coordinate_system_orientation = "tail_to_nose", # dejar como esta
+)
+
+# añadir punta
+punta_1 = Leon_1_2.add_nose(
+    length= 0.26,# longitud ojiva
+    kind="tangent", 
+    position= 1.282 # longitud total cohete
+)
+
+# añadir aletas
+aletas_1 = Leon_1_2.add_trapezoidal_fins(
+    n=4,
+    root_chord = 0.18,
+    tip_chord = 0.09,  
+    span = 0.09,
+    position = 0.198, # cuerda en la raíz + desplazamiento 
+    sweep_angle = 45
+)
+
+
+Leon_1_2.add_motor(Motor, position=0) # la posición es la longitud de la tobera negativa, poner 0 si no se conoce
+Leon_1_2.draw()
+Leon_1_2.plots.static_margin()
+
+
+test_flight = Flight(
+    rocket=Leon_1_2, 
+    environment=env, 
+    rail_length=2.5, 
+    inclination=85, 
+    heading=0 
+    )
+
+
+test_flight.prints.initial_conditions()
+test_flight.prints.surface_wind_conditions()
+test_flight.prints.launch_rail_conditions()
+test_flight.prints.out_of_rail_conditions()
+test_flight.prints.burn_out_conditions()
+test_flight.prints.apogee_conditions()
+test_flight.prints.impact_conditions()
+test_flight.prints.maximum_values()
+
+test_flight.plots.trajectory_3d()
+test_flight.plots.linear_kinematics_data()
+test_flight.plots.flight_path_angle_data()
+test_flight.plots.attitude_data()
+test_flight.plots.angular_kinematics_data()
+test_flight.plots.aerodynamic_forces()
+test_flight.plots.fluid_mechanics_data()
+test_flight.plots.stability_and_control_data()
