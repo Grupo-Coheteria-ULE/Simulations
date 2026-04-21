@@ -82,6 +82,12 @@ Leon_1_2.info()
 Leon_1_2.plots.static_margin()
 print("--------------------------------------------------------------------------------")
 
+main = Leon_1_2.add_parachute(
+    name="main",
+    cd_s=0.915,
+    trigger="apogee",      # ejection altitude in meters
+)
+
 test_flight = Flight(
     rocket=Leon_1_2, 
     environment=env, 
