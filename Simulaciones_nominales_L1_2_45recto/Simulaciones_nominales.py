@@ -11,13 +11,14 @@ from rocketpy import Rocket, Environment, SolidMotor, GenericMotor, Flight
 
 print("--------------------------------------------------------------------------------")
 
-latitud_alcolea = 41.729873
+latitud_alcolea = 41.73007275912096
 
-longitud_alcolea = 0.104249
+longitud_alcolea = 0.10426577877432051
 
 env = Environment(latitude=latitud_alcolea, longitude=longitud_alcolea, elevation = 186)  # elevación cero porque es a nivel del mar, es en el teleno por que si
+env.set_elevation("Open-Elevation") # esto te setea la elevacion en la elevacion en esas coordenadas
 
-env.set_atmospheric_model(type="standard_atmosphere")
+env.set_atmospheric_model(type="standard_atmosphere") 
 
 env.info()
 
@@ -27,7 +28,7 @@ print("-------------------------------------------------------------------------
 # =============================================================================
 Motor = GenericMotor(
     thrust_source=r"C:\Users\julfe\Documents\GCULE\Simulacion\Simulaciones_nominales_L1_2_45recto\Cesaroni_614I100-17A.csv", 
-    burn_time=6.2, # segundos, introducir el rango de tiempo de combustión sgún aparece en la primera columna del archivo csv
+    burn_time=(0,6.2), # segundos, introducir el rango de tiempo de combustión sgún aparece en la primera columna del archivo csv
     chamber_radius= 0.027, # radio del motor
     chamber_height= 0.236, # longitud del motor sin contar tobera
     chamber_position= 0, # longitud hasta el culo del motor (desde el culo del cohete, que suele ser la tobera)
@@ -45,11 +46,11 @@ print("-------------------------------------------------------------------------
 
 Leon_1_2 = Rocket(
     radius = 0.04, # m, radio exterior
-    mass = 2.84, # kg, sin motor
-    inertia = (0.403, 0.403, 0.003), # kg*m2, misma asunción que para el motor
+    mass = 3.184, # kg, sin motor
+    inertia = (0.4463, 0.4463, 0.004573), # kg*m2, misma asunción que para el motor
     power_off_drag = r"C:\Users\julfe\Documents\GCULE\Simulacion\Simulaciones_nominales_L1_2_45recto\curva_drag_L1_2_45_recto.csv", # ruta de .csv drag RASAERO, pasar a comas
     power_on_drag = r"C:\Users\julfe\Documents\GCULE\Simulacion\Simulaciones_nominales_L1_2_45recto\curva_drag_L1_2_45_recto.csv", # misma ruta que arriba
-    center_of_mass_without_motor = 0.548, # posición del cg en m desde la cola
+    center_of_mass_without_motor = 0.576955, # posición del cg en m desde la cola
     coordinate_system_orientation = "tail_to_nose", # dejar como esta
 )
 
@@ -80,12 +81,14 @@ print("=====CON EL MOTOR=====")
 Leon_1_2.draw()
 Leon_1_2.info()
 Leon_1_2.plots.static_margin()
+Leon_1_2.plots.stability_margin()
 print("--------------------------------------------------------------------------------")
 
 main = Leon_1_2.add_parachute(
     name="main",
     cd_s=0.915,
     trigger="apogee",      # ejection altitude in meters
+    lag = 1 # tiempo despues de apogeo hasta 17s + 1 segundo de lo que se tarda en abrir (va a haber que bajarlo porque sino 30m/s es demasiado)
 )
 
 test_flight = Flight(
@@ -108,6 +111,8 @@ print("-------------------------------------------------------------------------
 test_flight.prints.burn_out_conditions()
 print("--------------------------------------------------------------------------------")
 test_flight.prints.apogee_conditions()
+print("--------------------------------------------------------------------------------")
+test_flight.prints.events_registered()
 print("--------------------------------------------------------------------------------")
 test_flight.prints.impact_conditions()
 print("--------------------------------------------------------------------------------")
